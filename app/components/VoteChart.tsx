@@ -2,7 +2,7 @@
 import { useSearchParams, useRouter } from 'next/navigation'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
-  Tooltip, Legend, ResponsiveContainer,
+  Tooltip, Legend, ResponsiveContainer, Brush,
 } from 'recharts'
 import type { VoteRow } from '../lib/parseVotes'
 
@@ -100,6 +100,7 @@ export default function VoteChart({ totalsData, deltaData, delta10MinData }: Vot
             }}
             labelStyle={{ color: '#f9fafb' }}
           />
+          <Brush dataKey="time" height={24} stroke="#374151" fill="#111827" travellerWidth={6} />
           <Legend formatter={(value) => LABELS[value] ?? value} />
           <Line type="monotone" dataKey="treble_chorale" stroke={COLORS.treble_chorale} dot={false} strokeWidth={2} />
           <Line type="monotone" dataKey="bruin_singers" stroke={COLORS.bruin_singers} dot={false} strokeWidth={2} />
