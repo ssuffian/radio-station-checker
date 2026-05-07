@@ -16,6 +16,7 @@ jobs:
 
       - name: Poll and record votes
         run: |
+          git pull --rebase origin main
           RESPONSE=$(curl -sf "https://q99fm.com/api/v1/polls?ids=3936_7047" || echo "")
           if [ -n "$RESPONSE" ]; then
             TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
