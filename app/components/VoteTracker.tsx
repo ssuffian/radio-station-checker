@@ -4,6 +4,7 @@ import VoteChart from './VoteChart'
 import { parseVotesCsv, calculateDeltas, type VoteRow } from '../lib/parseVotes'
 
 const CSV_URL =
+  process.env.NEXT_PUBLIC_CSV_URL ??
   'https://raw.githubusercontent.com/ssuffian/radio-station-checker/main/data/votes.csv'
 
 export default function VoteTracker() {

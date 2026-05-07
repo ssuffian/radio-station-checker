@@ -15,14 +15,15 @@ CSV = Path(__file__).parent / "data" / "votes.csv"
 
 
 def fetch():
-    with urllib.request.urlopen(URL, timeout=10) as r:
+    req = urllib.request.Request(URL, headers={"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"})
+    with urllib.request.urlopen(req, timeout=10) as r:
         return json.load(r)
 
 
 def record():
     data = fetch()["data"]["3936_7047"]["options"]
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    row = f"{ts},{data['47295']},{data['47296']},{data['47297']}"
+    row = f"{ts},{data['47295']['votes']},{data['47296']['votes']},{data['47297']['votes']}"
     with CSV.open("a") as f:
         f.write(row + "\n")
     print(row)
@@ -35,4 +36,4 @@ if __name__ == "__main__":
             record()
         except Exception as e:
             print(f"Error: {e}")
-        time.sleep(60)
+        time.sleep(30)
