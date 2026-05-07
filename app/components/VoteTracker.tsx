@@ -15,10 +15,7 @@ export default function VoteTracker() {
 
   async function fetchData() {
     try {
-      const res = await fetch(`${CSV_URL}?t=${Date.now()}`, {
-        cache: 'no-store',
-        headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
-      })
+      const res = await fetch(`${CSV_URL}?t=${Date.now()}`, { cache: 'no-store' })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const csv = await res.text()
       const rows = parseVotesCsv(csv)
