@@ -1,0 +1,42 @@
+name: Poll Votes
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Poll and record votes (5 iterations × 60s)
+        run: |
+          for i in 1 2 3 4 5; do
+            RESPONSE=$(curl -sf "https://q99fm.com/api/v1/polls?ids=3936_7047" || echo "")
+            if [ -n "$RESPONSE" ]; then
+              TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+              TREBLE=$(echo "$RESPONSE" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['data']['3936_7047']['options']['47295'])" 2>/dev/null || echo "0")
+              BRUIN=$(echo "$RESPONSE" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['data']['3936_7047']['options']['47296'])" 2>/dev/null || echo "0")
+              BEL=$(echo "$RESPONSE" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['data']['3936_7047']['options']['47297'])" 2>/dev/null || echo "0")
+              echo "$TIMESTAMP,$TREBLE,$BRUIN,$BEL" >> data/votes.csv
+              echo "[$i/5] Recorded: $TIMESTAMP - Treble=$TREBLE Bruin=$BRUIN BelCanto=$BEL"
+            else
+              echo "[$i/5] API fetch failed, skipping"
+            fi
+            if [ "$i" -lt 5 ]; then sleep 60; fi
+          done
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main
+          git add data/votes.csv
+          git diff --cached --quiet && echo "No new rows to commit" && exit 0
+          git commit -m "chore: append vote data [skip ci]"
+          git push origin main
