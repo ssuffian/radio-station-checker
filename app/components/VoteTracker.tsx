@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import VoteChart from './VoteChart'
-import { parseVotesCsv, calculateDeltas, type VoteRow } from '../lib/parseVotes'
+import { parseVotesCsv, calculateDeltas, calculateDeltas10Min, type VoteRow } from '../lib/parseVotes'
 
 const CSV_URL =
   process.env.NEXT_PUBLIC_CSV_URL ??
@@ -10,6 +10,7 @@ const CSV_URL =
 export default function VoteTracker() {
   const [totalsData, setTotalsData] = useState<VoteRow[]>([])
   const [deltaData, setDeltaData] = useState<VoteRow[]>([])
+  const [delta10MinData, setDelta10MinData] = useState<VoteRow[]>([])
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -21,6 +22,7 @@ export default function VoteTracker() {
       const rows = parseVotesCsv(csv)
       setTotalsData(rows)
       setDeltaData(calculateDeltas(rows))
+      setDelta10MinData(calculateDeltas10Min(rows))
       const lastTs = rows.length > 0 ? new Date(rows[rows.length - 1].timestamp) : new Date()
       setLastUpdated(lastTs)
       setError(null)
@@ -50,7 +52,7 @@ export default function VoteTracker() {
         <p className="text-red-400 mb-4 text-sm">{error}</p>
       )}
 
-      <VoteChart totalsData={totalsData} deltaData={deltaData} />
+      <VoteChart totalsData={totalsData} deltaData={deltaData} delta10MinData={delta10MinData} />
     </div>
   )
 }

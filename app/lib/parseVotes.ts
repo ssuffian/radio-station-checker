@@ -27,3 +27,26 @@ export function calculateDeltas(rows: VoteRow[]): VoteRow[] {
     bel_canto: row.bel_canto - rows[i].bel_canto,
   }))
 }
+
+export function calculateDeltas10Min(rows: VoteRow[]): VoteRow[] {
+  const TEN_MIN_MS = 10 * 60 * 1000
+  const result: VoteRow[] = []
+  for (let i = 1; i < rows.length; i++) {
+    const t = new Date(rows[i].timestamp).getTime()
+    let prev: VoteRow | null = null
+    for (let j = i - 1; j >= 0; j--) {
+      if (t - new Date(rows[j].timestamp).getTime() >= TEN_MIN_MS) {
+        prev = rows[j]
+        break
+      }
+    }
+    if (!prev) continue
+    result.push({
+      timestamp: rows[i].timestamp,
+      treble_chorale: rows[i].treble_chorale - prev.treble_chorale,
+      bruin_singers: rows[i].bruin_singers - prev.bruin_singers,
+      bel_canto: rows[i].bel_canto - prev.bel_canto,
+    })
+  }
+  return result
+}

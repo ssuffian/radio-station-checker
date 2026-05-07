@@ -6,11 +6,12 @@ import {
 } from 'recharts'
 import type { VoteRow } from '../lib/parseVotes'
 
-type View = 'totals' | 'permin'
+type View = 'totals' | 'permin' | 'per10min'
 
 interface VoteChartProps {
   totalsData: VoteRow[]
   deltaData: VoteRow[]
+  delta10MinData: VoteRow[]
 }
 
 const COLORS = {
@@ -33,7 +34,13 @@ function formatTs(ts: string): string {
   })
 }
 
-export default function VoteChart({ totalsData, deltaData }: VoteChartProps) {
+const VIEW_LABELS: Record<View, string> = {
+  totals: 'Totals',
+  permin: 'Per Min',
+  per10min: 'Per 10 Min',
+}
+
+export default function VoteChart({ totalsData, deltaData, delta10MinData }: VoteChartProps) {
   const searchParams = useSearchParams()
   const router = useRouter()
   const view = (searchParams.get('view') as View) ?? 'totals'
@@ -44,12 +51,12 @@ export default function VoteChart({ totalsData, deltaData }: VoteChartProps) {
     router.replace(`?${params.toString()}`, { scroll: false })
   }
 
-  const activeData = view === 'totals' ? totalsData : deltaData
+  const activeData = view === 'totals' ? totalsData : view === 'permin' ? deltaData : delta10MinData
 
   if (activeData.length === 0) {
     return (
       <div className="flex items-center justify-center h-64 text-gray-400">
-        {view === 'permin' && totalsData.length < 2
+        {view !== 'totals' && totalsData.length < 2
           ? 'Not enough data yet for rate view'
           : 'Loading data…'}
       </div>
@@ -61,7 +68,7 @@ export default function VoteChart({ totalsData, deltaData }: VoteChartProps) {
   return (
     <div>
       <div className="flex gap-2 mb-6">
-        {(['totals', 'permin'] as View[]).map((v) => (
+        {(['totals', 'permin', 'per10min'] as View[]).map((v) => (
           <button
             key={v}
             onClick={() => setView(v)}
@@ -71,7 +78,7 @@ export default function VoteChart({ totalsData, deltaData }: VoteChartProps) {
                 : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
             }`}
           >
-            {v === 'totals' ? 'Totals' : 'Per Min'}
+            {VIEW_LABELS[v]}
           </button>
         ))}
       </div>
