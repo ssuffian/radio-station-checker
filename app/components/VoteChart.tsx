@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer,
@@ -34,7 +34,15 @@ function formatTs(ts: string): string {
 }
 
 export default function VoteChart({ totalsData, deltaData }: VoteChartProps) {
-  const [view, setView] = useState<View>('totals')
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const view = (searchParams.get('view') as View) ?? 'totals'
+
+  function setView(v: View) {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('view', v)
+    router.replace(`?${params.toString()}`, { scroll: false })
+  }
 
   const activeData = view === 'totals' ? totalsData : deltaData
 

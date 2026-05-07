@@ -15,13 +15,17 @@ export default function VoteTracker() {
 
   async function fetchData() {
     try {
-      const res = await fetch(`${CSV_URL}?t=${Date.now()}`)
+      const res = await fetch(`${CSV_URL}?t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
+      })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const csv = await res.text()
       const rows = parseVotesCsv(csv)
       setTotalsData(rows)
       setDeltaData(calculateDeltas(rows))
-      setLastUpdated(new Date())
+      const lastTs = rows.length > 0 ? new Date(rows[rows.length - 1].timestamp) : new Date()
+      setLastUpdated(lastTs)
       setError(null)
     } catch {
       setError('Could not load data — retrying in 60s')
