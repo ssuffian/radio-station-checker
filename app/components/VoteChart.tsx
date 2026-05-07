@@ -27,7 +27,7 @@ const LABELS: Record<string, string> = {
 
 function formatTs(ts: string): string {
   const d = new Date(ts)
-  return d.toLocaleDateString('en-US', {
+  return d.toLocaleString('en-US', {
     month: 'short', day: 'numeric',
     hour: '2-digit', minute: '2-digit',
   })
